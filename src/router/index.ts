@@ -12,8 +12,8 @@ import { createRouterGuard } from './guard';
 const { VITE_ROUTER_HISTORY_MODE = 'history', VITE_BASE_URL } = import.meta.env;
 
 const historyCreatorMap: Record<Env.RouterHistoryMode, (base?: string) => RouterHistory> = {
-  hash: createWebHashHistory,
-  history: createWebHistory,
+  hash: createWebHistory,
+  history: createWebHashHistory,
   memory: createMemoryHistory
 };
 
