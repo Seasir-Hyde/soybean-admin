@@ -10,7 +10,8 @@ export default defineConfig(configEnv => {
   const buildTime = getBuildTime();
 
   return {
-    base: viteEnv.VITE_BASE_URL,
+    // base: viteEnv.VITE_BASE_URL,
+    base: './',
     resolve: {
       alias: {
         '~': fileURLToPath(new URL('./', import.meta.url)),
