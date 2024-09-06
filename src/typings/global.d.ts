@@ -12,6 +12,15 @@ declare global {
     $message?: import('naive-ui').MessageProviderInst;
     /** Notification instance */
     $notification?: import('naive-ui').NotificationProviderInst;
+    ssq: any; // 可以更精确地定义 ssq 的类型
+    // ssc配置
+    __ssc?: {
+      // 设置
+      setting?: {
+        // 是否隐藏图标
+        hideIcon?: boolean;
+      };
+    };
   }
 
   interface ViewTransition {

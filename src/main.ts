@@ -1,10 +1,12 @@
 import { createApp } from 'vue';
 import './plugins/assets';
+import ElementPlus from 'element-plus';
 import { setupAppVersionNotification, setupDayjs, setupIconifyOffline, setupLoading, setupNProgress } from './plugins';
 import { setupStore } from './store';
 import { setupRouter } from './router';
 import { setupI18n } from './locales';
 import App from './App.vue';
+import 'element-plus/dist/index.css';
 
 async function setupApp() {
   setupLoading();
@@ -24,6 +26,8 @@ async function setupApp() {
   setupI18n(app);
 
   setupAppVersionNotification();
+
+  app.use(ElementPlus);
 
   app.mount('#app');
 }

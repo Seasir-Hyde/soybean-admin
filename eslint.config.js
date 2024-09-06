@@ -18,7 +18,9 @@ export default defineConfig(
           ignores: ['/^icon-/']
         }
       ],
-      'unocss/order-attributify': 'off'
+      'unocss/order-attributify': 'off',
+      'no-console': 'off', // 禁用 no-console 规则;配置禁止了 console 语句
+      'no-underscore-dangle': 'off' // 禁用下划线悬空
     }
   }
 );

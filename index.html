@@ -2,7 +2,7 @@
 <html lang="zh-cmn-Hans">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.svg" />
+    <link rel="icon" href="./public/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>%VITE_APP_TITLE%</title>
@@ -13,5 +13,15 @@
     <!-- salesmartly聊天插件 -->
     <script src="https://assets.salesmartly.com/js/project_23232_24120_1691829580.js"></script>
   </body>
-  <script src="https://assets.salesmartly.com/js/project_23232_24120_1691829580.js"></script>
+  <!-- 自定义脚本 -->
+  <script>
+    // 确保插件已加载
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.__ssc) {
+        window.__ssc.setting = { hideIcon: true }; // true为隐藏，false为不隐藏
+      } else {
+        console.error('window.__ssc is not available');
+      }
+    });
+  </script>
 </html>
