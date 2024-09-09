@@ -52,6 +52,16 @@ const options = computed(() => {
   return opts;
 });
 
+// 清理用户信息并切换到访客模式的函数
+function clearUserInfo() {
+  if (window.ssq) {
+    window.ssq.push('clearUser');
+    console.log('用户信息已清除，已切换到访客模式。');
+  } else {
+    console.error('ssq 对象不可用');
+  }
+}
+
 function logout() {
   window.$dialog?.info({
     title: $t('common.tip'),
@@ -59,7 +69,8 @@ function logout() {
     positiveText: $t('common.confirm'),
     negativeText: $t('common.cancel'),
     onPositiveClick: () => {
-      authStore.resetStore();
+      authStore.resetStore(); // 重置认证存储
+      clearUserInfo(); // 在这里调用清理用户信息的函数
     }
   });
 }
