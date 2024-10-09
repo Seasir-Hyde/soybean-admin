@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { $t } from '@/locales';
 import { useAppStore } from '@/store/modules/app';
 import { useAuthStore } from '@/store/modules/auth';
@@ -36,6 +36,62 @@ const statisticData = computed<StatisticData[]>(() => [
     value: '12'
   }
 ]);
+
+// 天气数据
+const weatherData = ref({
+  city: '',
+  temperature: '',
+  type: '',
+  date: '',
+  week: ''
+});
+
+// 获取天气信息的函数
+const getWeatherInfo = async () => {
+  try {
+    const response = await fetch('https://api.vvhan.com/api/weather');
+    const data = await response.json();
+    if (data.success) {
+      weatherData.value = {
+        city: data.city,
+        temperature: `${data.data.low}-${data.data.high}`,
+        type: data.data.type,
+        date: data.data.date,
+        week: data.data.week
+      };
+    }
+  } catch (error) {
+    console.error('获取天气信息失败', error);
+  }
+};
+
+// 储存舔狗日记内容
+const diaryContent = ref('');
+
+// 获取舔狗日记的函数
+const getDiary = async () => {
+  try {
+    const response = await fetch('https://api.vvhan.com/api/text/dog?type=json');
+    const data = await response.json();
+
+    if (data.success) {
+      diaryContent.value = data.data.content; // 获取内容
+    } else {
+      console.error('获取舔狗日记失败:', data.message);
+    }
+  } catch (error) {
+    console.error('获取舔狗日记失败', error);
+  }
+};
+
+const init = async () => {
+  await getWeatherInfo(); // 获取天气信息
+  await getDiary(); // 获取狗狗信息
+};
+
+onMounted(async () => {
+  await init();
+});
 </script>
 
 <template>
@@ -50,7 +106,31 @@ const statisticData = computed<StatisticData[]>(() => [
             <h3 class="text-18px font-semibold">
               {{ $t('page.home.greeting', { userName: authStore.userInfo.userName }) }}
             </h3>
-            <p class="text-#999 leading-30px">{{ $t('page.home.weatherDesc') }}</p>
+            <!-- <p class="text-#999 leading-30px">{{ $t('page.home.weatherDesc') }}</p> -->
+            <h2 class="greeting">
+              🎉 欢迎来自
+              <span class="highlight" style="color: red">{{ weatherData.city }}</span>
+              的小伙伴！
+            </h2>
+            <span>
+              今日温度：
+              <span class="highlight" style="color: red">{{ weatherData.temperature }}</span>
+            </span>
+            <span>
+              天气：
+              <span class="highlight" style="color: red">{{ weatherData.type }}</span>
+            </span>
+            <span>
+              日期：
+              <span class="highlight" style="color: red">{{ weatherData.date }}</span>
+            </span>
+            <span>
+              星期：
+              <span class="highlight" style="color: red">{{ weatherData.week }}</span>
+            </span>
+            <h1>舔狗日记：</h1>
+            <p v-if="diaryContent">{{ diaryContent }}</p>
+            <p v-else>加载中...</p>
           </div>
         </div>
       </NGi>
