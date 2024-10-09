@@ -25,7 +25,9 @@ function setLoginInfo() {
       phone: '19966668888', // 对应用户手机号
       email: 'Test_Email@qq.com', // 对应用户邮箱
       description: '项目名称\n套餐\n套餐费用\n截至日期\n客户信息', // 对应客户资料的用户描述信息，例如套餐信息
-      label_names: ['标签值1', '标签值2'] // 对应用户标签，仅支持传系统已创建的标签值
+      label_names: ['标签值1', '标签值2'], // 对应用户标签，仅支持传系统已创建的标签值
+
+      test: 'xiaomi' // 自定义字段，仅用于测试
     });
   } else {
     console.error('ssq 未定义或者未声明--设置登录信息');
@@ -213,6 +215,58 @@ function markAsRead(index: number) {
   // 可以在此处添加 API 调用，通知后端用户已读了消息
   window.ssq.push('onUnRead', handleOnUnRead); // 监听未读消息
 }
+
+// 定义数据接口
+interface SimulatedData {
+  timestamp: string; // 时间
+  details: {
+    messageId: string; // 消息 ID
+    messageType: string; // 消息类型
+    messageContent: string; // 消息内容
+  };
+}
+// 创建一个响应式状态来保存模拟的数据
+const simulatedObj = ref<SimulatedData | null>(null);
+// 监听发送消息
+const onSendMessage = () => {
+  window.ssq.push('onSendMessage', (_obj: any) => {
+    console.log('Data received:', _obj);
+
+    // 获取当前时间的 UTC 时间戳
+    const now = new Date();
+
+    // 获取 UTC+8 时间
+    const offset = 8 * 60; // UTC+8 时区偏移量，以分钟为单位
+    const localTime = new Date(now.getTime() + offset * 60 * 1000);
+
+    // 格式化时间为 'YYYY-MM-DDTHH:mm:ss.sss' 格式
+    const formattedTime = localTime.toISOString().replace('Z', '+08:00');
+
+    // 标准化消息内容
+    const messageContent = _obj.message.trim().toLowerCase();
+
+    // 确保 messageId 和 messageType 被赋值
+    simulatedObj.value = {
+      timestamp: formattedTime, // UTC+8 时间
+      details: {
+        messageId: _obj.mid, // 消息 ID
+        messageType: _obj.msg_type, // 消息类型
+        messageContent // 标准化消息内容
+      }
+    };
+
+    console.log('访客消息发送成功并上报数据', simulatedObj.value.details.messageContent);
+
+    if (simulatedObj.value.details.messageContent === 'success') {
+      console.log('Simulated object:', simulatedObj.value);
+
+      ElMessage.success('访客消息发送成功！');
+    } else {
+      ElMessage.error('访客消息发送失败，请稍后重试~');
+    }
+  });
+};
+onSendMessage();
 </script>
 
 <template>
@@ -230,6 +284,16 @@ function markAsRead(index: number) {
         <span class="message">{{ message }}</span>
       </li>
     </ul>
+  </div>
+  <div v-if="simulatedObj" class="message-card">
+    <h3>访客消息状态</h3>
+    <p>消息ID: {{ simulatedObj.details.messageId }}</p>
+    <p>发送时间: {{ simulatedObj.timestamp }}</p>
+    <p>消息类型: {{ simulatedObj.details.messageType }}</p>
+    <p>消息内容: {{ simulatedObj.details.messageContent }}</p>
+  </div>
+  <div @click="openChat">
+    <img src="https://img0.baidu.com/it/u=2702865616,2265069128&fm=253&fmt=auto&app=120&f=JPEG?w=1422&h=800" alt="" />
   </div>
 </template>
 
@@ -327,5 +391,41 @@ function markAsRead(index: number) {
   .unread-container {
     width: 100%; /* 宽度为100% */
   }
+}
+
+.message-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  margin: 16px 0;
+  max-width: 600px;
+  font-family: Arial, sans-serif;
+}
+
+.message-card h3 {
+  font-size: 1.5em;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.message-card p {
+  font-size: 1em;
+  color: #555;
+  margin: 8px 0;
+}
+
+.message-card p:first-child {
+  font-weight: bold;
+  color: #000;
+}
+
+.message-card p span {
+  font-weight: normal;
+  color: #777;
+}
+
+.message-card p {
+  line-height: 1.6;
 }
 </style>
