@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 
 // 确保外部脚本已经加载
 onMounted(() => {
@@ -33,147 +33,6 @@ function setLoginInfo() {
     console.error('ssq 未定义或者未声明--设置登录信息');
   }
 }
-
-// 显示确认对话框
-const showConfirmDialog = (message: string, title: string) => {
-  return ElMessageBox.confirm(message, title, {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-    draggable: true
-  });
-};
-
-// 显示信息消息
-const showInfoMessage = (message: string) => {
-  ElMessage({
-    type: 'info',
-    message
-  });
-};
-
-// 显示成功消息
-const showSuccessMessage = (message: string) => {
-  ElMessage({
-    type: 'success',
-    message
-  });
-};
-
-// 用于控制点击频率的变量
-const isProcessing = ref(false); // 控制按钮是否处于处理状态
-const lastClickTime = ref(0); // 记录上一次点击的时间戳
-const cooldownTime = 3000; // 设置冷却时间为3秒
-// 封装防抖逻辑的函数
-const handleDebounce = () => {
-  const now = Date.now();
-
-  // 判断是否在冷却时间内重复点击
-  if (now - lastClickTime.value < cooldownTime) {
-    ElMessage.error('点击太快啦，休息下叭~');
-    return true;
-  }
-
-  // 更新最后一次点击的时间
-  lastClickTime.value = now;
-  return false;
-};
-// 打开聊天窗口
-const openChat = async () => {
-  if (handleDebounce()) {
-    return;
-  }
-  try {
-    isProcessing.value = true; // 设置处理状态为真，防止重复操作
-    await showConfirmDialog('确定要打开聊天窗口吗？', '确认');
-    if (typeof window.ssq !== 'undefined' && typeof window.ssq.push === 'function') {
-      window.ssq.push('chatOpen');
-      console.log('聊天窗口已打开');
-      showSuccessMessage('聊天窗口已打开');
-    } else {
-      console.error('ssq 未定义或者未声明--打开聊天窗口');
-    }
-  } catch {
-    showInfoMessage('操作已取消');
-    console.log('用户已取消打开聊天窗口');
-  }
-};
-
-// 关闭聊天窗口
-const chatClose = async () => {
-  if (handleDebounce()) {
-    return;
-  }
-
-  try {
-    isProcessing.value = true; // 设置处理状态为真，防止重复操作
-
-    // 弹出确认对话框
-    await ElMessageBox.confirm('确定要关闭聊天窗口吗？', '确认', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-      draggable: true
-    });
-
-    // 显示初始提示
-    showInfoMessage('聊天窗口将在3秒后关闭');
-
-    let countdown = 3; // 初始倒计时秒数
-    const interval = setInterval(() => {
-      countdown -= 1; // 替代 countdown--
-      if (countdown > 0) {
-        showInfoMessage(`聊天窗口将在${countdown}秒后关闭`);
-      } else if (countdown === 0) {
-        clearInterval(interval);
-
-        // 在倒计时结束后延迟关闭聊天窗口
-        setTimeout(() => {
-          if (typeof window.ssq !== 'undefined' && typeof window.ssq.push === 'function') {
-            window.ssq.push('chatClose');
-            console.log('聊天窗口已关闭');
-            showSuccessMessage('聊天窗口已成功关闭');
-          } else {
-            console.error('ssq 未定义或者未声明--关闭聊天窗口');
-          }
-
-          isProcessing.value = false; // 处理完成后重置处理状态
-        }, 1000); // 延迟1秒后关闭聊天窗口并显示成功消息
-      }
-    }, 1000); // 每秒更新一次
-  } catch {
-    showInfoMessage('操作已取消');
-    isProcessing.value = false; // 处理完成后重置处理状态
-  }
-};
-
-// 定义函数时指定参数的类型为 string
-const confirmNavigation = (url: string, linkName: string) => {
-  if (handleDebounce()) {
-    return;
-  }
-
-  ElMessageBox.confirm(`您确定要跳转到专属链接${linkName}吗？`, '确认跳转', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(() => {
-      // 用户点击确定后的操作，跳转到指定的链接
-      window.open(url, '_blank'); // 在新标签页打开链接
-      ElMessage({
-        type: 'success',
-        message: `已跳转到专属链接${linkName}`
-      });
-    })
-    .catch(() => {
-      // 用户点击取消后的操作
-      ElMessage({
-        type: 'info',
-        message: '操作已取消'
-      });
-    });
-};
 
 // 定义 Message 类型接口
 interface Message {
@@ -227,6 +86,7 @@ interface SimulatedData {
 }
 // 创建一个响应式状态来保存模拟的数据
 const simulatedObj = ref<SimulatedData | null>(null);
+
 // 监听发送消息
 const onSendMessage = () => {
   window.ssq.push('onSendMessage', (_obj: any) => {
@@ -254,28 +114,14 @@ const onSendMessage = () => {
         messageContent // 标准化消息内容
       }
     };
-
-    console.log('访客消息发送成功并上报数据', simulatedObj.value.details.messageContent);
-
-    if (simulatedObj.value.details.messageContent === 'success') {
-      console.log('Simulated object:', simulatedObj.value);
-
-      ElMessage.success('访客消息发送成功！');
-    } else {
-      ElMessage.error('访客消息发送失败，请稍后重试~');
-    }
+    ElMessage.success(`发送消息成功，内容是：${messageContent}`);
   });
 };
+
 onSendMessage();
 </script>
 
 <template>
-  <div class="button-container">
-    <ElButton type="primary" @click="openChat">咨询客服</ElButton>
-    <ElButton type="danger" @click="chatClose">关闭咨询</ElButton>
-    <ElButton type="primary" plain @click="confirmNavigation('http://test.seasir.top/', 'A')">专属链接A</ElButton>
-    <ElButton type="success" plain @click="confirmNavigation('http://test.nicoo.ltd/', 'B')">专属链接B</ElButton>
-  </div>
   <div class="unread-container">
     <p class="unread-count">未读数量: {{ unreadCount }}</p>
     <ul class="unread-list">
@@ -291,9 +137,6 @@ onSendMessage();
     <p>发送时间: {{ simulatedObj.timestamp }}</p>
     <p>消息类型: {{ simulatedObj.details.messageType }}</p>
     <p>消息内容: {{ simulatedObj.details.messageContent }}</p>
-  </div>
-  <div @click="openChat">
-    <img src="https://img0.baidu.com/it/u=2702865616,2265069128&fm=253&fmt=auto&app=120&f=JPEG?w=1422&h=800" alt="" />
   </div>
 </template>
 

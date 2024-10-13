@@ -375,3 +375,8 @@ video {
 [hidden] {
   display: none;
 }
+
+#waifu {
+  /* 看板娘置顶 */
+  z-index: 9999 !important;
+}
