@@ -21,6 +21,5 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true
   },
-  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.vue", "src/plugins/particles.js", "src/config/particles.js"],
   "exclude": ["node_modules", "dist"]
 }
