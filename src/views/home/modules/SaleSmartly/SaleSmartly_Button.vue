@@ -143,14 +143,61 @@ const confirmNavigation = (url: string, linkName: string) => {
       });
     });
 };
+
+// 定义响应式数据
+const wallpaperUrl = ref('');
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+// 定义获取壁纸的函数
+const fetchWallpaper = async () => {
+  loading.value = true;
+  error.value = null;
+  try {
+    const response = await fetch('https://api.vvhan.com/api/wallpaper/acg?type=json');
+    const data = await response.json();
+    if (data.success && data.url) {
+      wallpaperUrl.value = data.url;
+    } else {
+      throw new Error('获取壁纸失败');
+    }
+  } catch (err) {
+    // 进行类型检查，确保 err 是对象且有 message 属性
+    if (err instanceof Error) {
+      error.value = err.message;
+    } else {
+      error.value = 'An unknown error occurred';
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+fetchWallpaper();
 </script>
 
 <template>
+  <!-- 按钮容器 -->
   <div class="button-container">
     <ElButton type="primary" @click="openChat">咨询客服</ElButton>
     <ElButton type="danger" @click="chatClose">关闭咨询</ElButton>
     <ElButton type="primary" plain @click="confirmNavigation('http://test.seasir.top/', 'A')">专属链接A</ElButton>
     <ElButton type="success" plain @click="confirmNavigation('http://test.nicoo.ltd/', 'B')">专属链接B</ElButton>
+  </div>
+  <!-- 壁纸容器 -->
+  <div class="wallpaper-container">
+    <!-- 提示信息 -->
+    <ElButton v-if="loading" class="loading-text" type="primary" loading>壁纸加载中...</ElButton>
+    <!-- 获取壁纸失败时显示错误信息 -->
+    <ElButton v-if="error">{{ error }}</ElButton>
+
+    <!-- 成功获取时显示图片 -->
+    <div v-if="wallpaperUrl">
+      <img :src="wallpaperUrl" alt="ACG Wallpaper" class="wallpaper-image" @click="openChat" />
+    </div>
+
+    <!-- 刷新壁纸按钮 -->
+    <ElButton type="primary" @click="fetchWallpaper">刷新壁纸</ElButton>
   </div>
 </template>
 
@@ -158,11 +205,9 @@ const confirmNavigation = (url: string, linkName: string) => {
 .button-container {
   display: flex;
   justify-content: flex-end; /* 保持 PC 端按钮居右对齐 */
-  // padding-right: 20px;
   border-radius: 8px;
   height: 40px;
   align-items: center;
-
   display: grid;
   grid-template-columns: 1fr 1fr; /* 定义2列布局 */
   gap: 20px; /* 按钮之间的间距 */
@@ -172,6 +217,7 @@ const confirmNavigation = (url: string, linkName: string) => {
   margin-left: 10px;
 }
 
+// 按钮移动端媒体查询
 @media (max-width: 768px) {
   /* 移动端屏幕宽度小于等于 768px 时 */
   .button-container {
@@ -192,5 +238,25 @@ const confirmNavigation = (url: string, linkName: string) => {
   .button-container {
     grid-template-columns: 2fr; /* 在移动设备上改为1列 */
   }
+}
+
+// 获取壁纸样式
+.wallpaper-container {
+  text-align: center;
+  margin: 10px;
+  margin-top: 60px;
+}
+
+.wallpaper-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  cursor: pointer; /* 鼠标放上去时显示手指光标 */
+}
+
+.loading-text {
+  color: #ffffff;
 }
 </style>

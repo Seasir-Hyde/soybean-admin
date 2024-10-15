@@ -5,7 +5,6 @@ import { useAppStore } from '@/store/modules/app';
 import { useAuthStore } from '@/store/modules/auth';
 import InformationCard from './InformationCard.vue'; // 信息卡片
 import SaleSmartlyButton from './SaleSmartly/SaleSmartly_Button.vue'; // 咨询客服/专属按钮
-import WallpaperDisplay from './SaleSmartly/WallpaperDisplay.vue'; // 二次元壁纸
 
 defineOptions({
   name: 'HeaderBanner'
@@ -66,8 +65,6 @@ const statisticData = computed<StatisticData[]>(() => [
         </NSpace>
         <!-- 咨询客服/专属按钮 -->
         <SaleSmartlyButton />
-        <!-- 二次元壁纸 -->
-        <WallpaperDisplay />
       </NGi>
     </NGrid>
   </NCard>
